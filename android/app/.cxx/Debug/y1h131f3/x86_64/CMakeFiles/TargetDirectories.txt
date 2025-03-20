@@ -1,0 +1,2 @@
+/home/renhoshizora/AndroidStudioProjects/student_app_data/android/app/.cxx/Debug/y1h131f3/x86_64/CMakeFiles/edit_cache.dir
+/home/renhoshizora/AndroidStudioProjects/student_app_data/android/app/.cxx/Debug/y1h131f3/x86_64/CMakeFiles/rebuild_cache.dir
