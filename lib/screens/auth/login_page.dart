@@ -15,6 +15,22 @@ class _LoginPageState extends State<LoginPage> {
   final TextEditingController emailController = TextEditingController();
   final TextEditingController passwordController = TextEditingController();
 
+  void _showSnackbar(String message, Color color, IconData icon) {
+    final snackBar = SnackBar(
+      content: Row(
+        children: [
+          Icon(icon, color: Colors.white),
+          SizedBox(width: 10),
+          Expanded(child: Text(message, style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold))),
+        ],
+      ),
+      backgroundColor: color.withOpacity(0.9),
+      behavior: SnackBarBehavior.floating,
+      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
+    );
+    ScaffoldMessenger.of(context).showSnackBar(snackBar);
+  }
+
   Future<void> loginUser() async {
     final prefs = await SharedPreferences.getInstance();
     final dbHelper = DatabaseHelper.instance;
@@ -27,11 +43,10 @@ class _LoginPageState extends State<LoginPage> {
     if (user != null && user.password == password) {
       await prefs.setBool('isLoggedIn', true);
       await prefs.setString('loggedInUserEmail', email);
+      _showSnackbar("Login successful!", Colors.greenAccent, Icons.check_circle);
       GoRouter.of(context).go('/home');
     } else {
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text("Invalid email or password")),
-      );
+      _showSnackbar("Invalid email or password", Colors.redAccent, Icons.warning);
     }
   }
 
@@ -40,7 +55,6 @@ class _LoginPageState extends State<LoginPage> {
     return Scaffold(
       body: Stack(
         children: [
-          // Background gradient
           Container(
             decoration: BoxDecoration(
               gradient: LinearGradient(
