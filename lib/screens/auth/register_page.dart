@@ -15,6 +15,22 @@ class _RegisterPageState extends State<RegisterPage> {
   final TextEditingController emailController = TextEditingController();
   final TextEditingController passwordController = TextEditingController();
 
+  void _showSnackbar(String message, Color color, IconData icon) {
+    final snackBar = SnackBar(
+      content: Row(
+        children: [
+          Icon(icon, color: Colors.white),
+          SizedBox(width: 10),
+          Expanded(child: Text(message, style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold))),
+        ],
+      ),
+      backgroundColor: color.withOpacity(0.9),
+      behavior: SnackBarBehavior.floating,
+      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
+    );
+    ScaffoldMessenger.of(context).showSnackBar(snackBar);
+  }
+
   Future<void> _register() async {
     String email = emailController.text.trim();
     String password = passwordController.text.trim();
@@ -24,20 +40,14 @@ class _RegisterPageState extends State<RegisterPage> {
       final existingUser = await dbHelper.getUserByEmail(email);
 
       if (existingUser != null) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text("Email already exists! Please log in.")),
-        );
+        _showSnackbar("Email already exists! Please log in.", Colors.redAccent, Icons.warning);
       } else {
         await dbHelper.registerUser(User(email: email, password: password));
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text("Registration successful! Please log in.")),
-        );
+        _showSnackbar("Registration successful! Please log in.", Colors.greenAccent, Icons.check_circle);
         context.go('/login');
       }
     } else {
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text("Please fill in all fields.")),
-      );
+      _showSnackbar("Please fill in all fields.", Colors.orangeAccent, Icons.error);
     }
   }
 
@@ -46,7 +56,6 @@ class _RegisterPageState extends State<RegisterPage> {
     return Scaffold(
       body: Stack(
         children: [
-          // Background gradient
           Container(
             decoration: BoxDecoration(
               gradient: LinearGradient(
