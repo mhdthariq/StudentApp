@@ -36,7 +36,7 @@ A Flutter CRUD application for managing student records with SQLite.
    ```
 
 ## Screenshots
-_Add screenshots of the app here_
+<img src="assets/Screenshot1.png" alt="Screenshot" style="max-width: 100%; height: auto;">
 
 ## Future Enhancements
 - Cloud sync with Firebase
