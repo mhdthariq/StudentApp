@@ -19,15 +19,25 @@ class _AddUpdatePageState extends State<AddUpdatePage> {
   late TextEditingController _nameController;
   late TextEditingController _studentIdController;
   late TextEditingController _majorController;
+  late TextEditingController _ageController;
+  late TextEditingController _gradeController;
+  late TextEditingController _rollNoController;
   late Color primaryColor;
 
   @override
   void initState() {
     super.initState();
     _nameController = TextEditingController(text: widget.student?.name ?? '');
-    _studentIdController = TextEditingController(text: widget.student?.studentId ?? '');
+    _studentIdController =
+        TextEditingController(text: widget.student?.studentId ?? '');
     _majorController = TextEditingController(text: widget.student?.major ?? '');
-    primaryColor = widget.student == null ? Colors.blueAccent : Colors.deepPurpleAccent;
+    _ageController =
+        TextEditingController(text: widget.student?.age.toString() ?? '');
+    _gradeController = TextEditingController(text: widget.student?.grade ?? '');
+    _rollNoController =
+        TextEditingController(text: widget.student?.rollNo ?? '');
+    primaryColor =
+        widget.student == null ? Colors.blueAccent : Colors.deepPurpleAccent;
   }
 
   @override
@@ -35,6 +45,9 @@ class _AddUpdatePageState extends State<AddUpdatePage> {
     _nameController.dispose();
     _studentIdController.dispose();
     _majorController.dispose();
+    _ageController.dispose();
+    _gradeController.dispose();
+    _rollNoController.dispose();
     super.dispose();
   }
 
@@ -45,6 +58,9 @@ class _AddUpdatePageState extends State<AddUpdatePage> {
         name: _nameController.text.trim(),
         studentId: _studentIdController.text.trim(),
         major: _majorController.text.trim(),
+        age: int.parse(_ageController.text.trim()),
+        grade: _gradeController.text.trim(),
+        rollNo: _rollNoController.text.trim(),
       );
 
       final provider = Provider.of<StudentProvider>(context, listen: false);
@@ -53,7 +69,7 @@ class _AddUpdatePageState extends State<AddUpdatePage> {
       } else {
         provider.updateStudent(student);
       }
-      Navigator.pop(context);
+      Navigator.of(context).pop(); // Use Navigator.of(context)
     }
   }
 
@@ -61,14 +77,21 @@ class _AddUpdatePageState extends State<AddUpdatePage> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text(widget.student == null ? "Add Student" : "Update Student"),
+        title: Text(
+          widget.student == null ? "Add Student" : "Update Student",
+          style: const TextStyle(
+            color: Colors.white, // Set text color to white
+            fontWeight: FontWeight.bold,
+            fontSize: 24,
+          ),
+        ),
         leading: IconButton(
-          icon: Icon(Icons.arrow_back, color: Colors.white),
+          icon: const Icon(Icons.arrow_back, color: Colors.white),
           onPressed: () => Navigator.pop(context),
         ),
         backgroundColor: primaryColor,
         elevation: 4,
-        shape: RoundedRectangleBorder(
+        shape: const RoundedRectangleBorder(
           borderRadius: BorderRadius.vertical(bottom: Radius.circular(16)),
         ),
       ),
@@ -87,26 +110,43 @@ class _AddUpdatePageState extends State<AddUpdatePage> {
               ),
               child: Form(
                 key: _formKey,
-                child: Column(
-                  children: [
-                    _buildTextField(_nameController, "Name", Icons.person),
-                    SizedBox(height: 12),
-                    _buildTextField(_studentIdController, "Student ID", Icons.badge, isNumber: true),
-                    SizedBox(height: 12),
-                    _buildTextField(_majorController, "Major", Icons.school),
-                    SizedBox(height: 30),
-                    ElevatedButton(
-                      onPressed: _saveStudent,
-                      style: ElevatedButton.styleFrom(
-                        backgroundColor: primaryColor,
-                        foregroundColor: Colors.white,
-                        padding: EdgeInsets.symmetric(vertical: 14, horizontal: 32),
-                        textStyle: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
-                        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
-                      ),
-                      child: Text(widget.student == null ? "Add Student" : "Update Student"),
-                    )
-                  ],
+                child: SingleChildScrollView(
+                  child: Column(
+                    children: [
+                      _buildTextField(_nameController, "Name", Icons.person),
+                      SizedBox(height: 12),
+                      _buildTextField(
+                          _studentIdController, "Student ID", Icons.badge),
+                      SizedBox(height: 12),
+                      _buildTextField(_majorController, "Major", Icons.school),
+                      SizedBox(height: 12),
+                      _buildTextField(
+                          _ageController, "Age", Icons.calendar_today,
+                          isNumber: true),
+                      SizedBox(height: 12),
+                      _buildTextField(_gradeController, "Grade", Icons.grade),
+                      SizedBox(height: 12),
+                      _buildTextField(_rollNoController, "Roll No",
+                          Icons.format_list_numbered),
+                      SizedBox(height: 30),
+                      ElevatedButton(
+                        onPressed: _saveStudent,
+                        style: ElevatedButton.styleFrom(
+                          backgroundColor: primaryColor,
+                          foregroundColor: Colors.white,
+                          padding: EdgeInsets.symmetric(
+                              vertical: 14, horizontal: 32),
+                          textStyle: TextStyle(
+                              fontSize: 18, fontWeight: FontWeight.bold),
+                          shape: RoundedRectangleBorder(
+                              borderRadius: BorderRadius.circular(10)),
+                        ),
+                        child: Text(widget.student == null
+                            ? "Add Student"
+                            : "Update Student"),
+                      )
+                    ],
+                  ),
                 ),
               ),
             ),
@@ -116,7 +156,9 @@ class _AddUpdatePageState extends State<AddUpdatePage> {
     );
   }
 
-  Widget _buildTextField(TextEditingController controller, String label, IconData icon, {bool isNumber = false}) {
+  Widget _buildTextField(
+      TextEditingController controller, String label, IconData icon,
+      {bool isNumber = false}) {
     return TextFormField(
       controller: controller,
       decoration: InputDecoration(
@@ -126,7 +168,9 @@ class _AddUpdatePageState extends State<AddUpdatePage> {
         filled: true,
         fillColor: Colors.white.withOpacity(0.2),
       ),
-      validator: label == "Student ID" ? Validators.validateStudentId : Validators.validateName,
+      validator: label == "Student ID"
+          ? Validators.validateStudentId
+          : Validators.validateName,
       keyboardType: isNumber ? TextInputType.number : TextInputType.text,
     );
   }

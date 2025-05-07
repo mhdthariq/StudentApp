@@ -1,30 +1,76 @@
 import 'package:flutter/material.dart';
-import '../database/database_helper.dart';
+import 'package:flutter/foundation.dart';
 import '../models/student.dart';
+import '../services/firebase_service.dart';
 
-class StudentProvider extends ChangeNotifier {
-  final DatabaseHelper _databaseHelper = DatabaseHelper.instance;
-  List<Student> _students = [];
+class StudentProvider with ChangeNotifier {
+  final FirebaseService _firebaseService = FirebaseService();
+  final List<String> _selectedStudents = [];
 
-  List<Student> get students => _students;
+  // Stream for real-time updates
+  Stream<List<Student>> get studentsStream => _firebaseService.getStudents();
 
-  Future<void> fetchStudents() async {
-    _students = await _databaseHelper.getAllStudents();
-    notifyListeners();
-  }
+  List<String> get selectedStudents => _selectedStudents;
 
   Future<void> addStudent(Student student) async {
-    await _databaseHelper.insertStudent(student);
-    fetchStudents();
+    try {
+      await _firebaseService.addStudent(student);
+      notifyListeners();
+    } catch (e) {
+      throw Exception('Failed to add student: $e');
+    }
   }
 
   Future<void> updateStudent(Student student) async {
-    await _databaseHelper.updateStudent(student);
-    fetchStudents();
+    try {
+      if (student.id != null) {
+        await _firebaseService.updateStudent(student.id!, student);
+        notifyListeners();
+      }
+    } catch (e) {
+      throw Exception('Failed to update student: $e');
+    }
   }
 
-  Future<void> deleteStudent(int id) async {
-    await _databaseHelper.deleteStudent(id);
-    fetchStudents();
+  Future<void> deleteStudent(String id) async {
+    try {
+      await _firebaseService.deleteStudent(id);
+      notifyListeners();
+    } catch (e) {
+      throw Exception('Failed to delete student: $e');
+    }
+  }
+
+  Future<void> deleteSelectedStudents() async {
+    try {
+      await _firebaseService.deleteMultipleStudents(_selectedStudents);
+      _selectedStudents.clear();
+      notifyListeners();
+    } catch (e) {
+      throw Exception('Failed to delete selected students: $e');
+    }
+  }
+
+  Future<void> deleteMultipleStudents(List<String> ids) async {
+    try {
+      await _firebaseService.deleteMultipleStudents(ids);
+      notifyListeners();
+    } catch (e) {
+      throw Exception('Failed to delete students: $e');
+    }
+  }
+
+  void toggleStudentSelection(String id) {
+    if (_selectedStudents.contains(id)) {
+      _selectedStudents.remove(id);
+    } else {
+      _selectedStudents.add(id);
+    }
+    notifyListeners();
+  }
+
+  void clearSelection() {
+    _selectedStudents.clear();
+    notifyListeners();
   }
 }
